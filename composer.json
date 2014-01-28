@@ -16,12 +16,6 @@
 		"yiisoft/yii2": "*",
 		"opus-online/yii2-payment": "*"
 	},
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/opus-online/yii2-payment"
-		}
-	],
 	"autoload": {
 		"psr-4": {
 			"opus\\ecom\\": "lib/"
