@@ -71,3 +71,15 @@ ActiveRecord integration makes it very easy to add items to shopping basket and 
 
 1. Implement `opus\ecom\models\PurchasableInterface` in your AR model class to add support for products, services, discounts etc. 
 2. Implement `opus\ecom\models\OrderableInterface` to add support for orders.
+
+
+
+### Using the shopping basket
+TBD
+### Creating orders
+TBD
+### Using payments
+#### Generating payment forms
+TBD
+#### Receiving requests from banks
+TBD
