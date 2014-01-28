@@ -1,0 +1,30 @@
+{
+	"name": "opus-online/yii2-ecom",
+	"version": "1.0.0-alpha",
+	"description": "E-commerce extension for Yii2",
+	"minimum-stability": "dev",
+	"type": "yii2-extension",
+	"license": "proprietary",
+	"authors": [
+		{
+			"name": "Ivo Kund",
+			"email": "ivo@opus.ee"
+		}
+	],
+	"require": {
+		"php": ">=5.4.0",
+		"yiisoft/yii2": "*",
+		"opus-online/yii2-payment": "*"
+	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/opus-online/yii2-payment"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"opus\\ecom\\": "lib/"
+		}
+	}
+}
