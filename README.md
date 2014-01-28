@@ -13,18 +13,12 @@ Main features:
 
 Installation
 ------------
-You can install this package using composer. In your `composer.json` add the following. 
+You can install this package using composer. In your `composer.json` add the following required package: 
 ```json
 {
 	"require": {
 			"opus-online/yii2-ecom": "*"
-	},
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/opus-online/yii2-ecom"
-		}
-	]
+	}
 }
 ```
 Technical overview
