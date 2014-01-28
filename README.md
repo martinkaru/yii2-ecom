@@ -167,4 +167,25 @@ If you have saved your Order objects, you can use the included widget `opus\ecom
 	->run();
 ```
 #### Receiving requests from banks
-TBD
+After payment the user is directed back to the application to a URL specified in your configuration by `bankReturnRoute` under `payment` sub-component. In your controller action you can pass the request to the component like this:
+```php
+public function actionBankReturn()
+{
+	// pass in the request data and the name of the class you want to use as order object
+	$model = \Yii::$app->ecom->payment->handleResponse($_REQUEST, Order::className());
+
+	$this->redirect(['order/view', 'orderId' => $model->id]);
+}
+```
+The above code loads the right Order from the database and calls the `bankReturn` method from your Order class. You are responsible for saving the order and logging necessary data. 
+```php
+public function bankReturn(Response $response)
+{
+    $this->status = $response->isSuccessful() ? 'paid' : 'error';
+    $this->save();
+
+    \Yii::$app->log->log('Returned from bank: ' . $response->__toString(), Logger::LEVEL_INFO);
+
+    return $this;
+}
+```
