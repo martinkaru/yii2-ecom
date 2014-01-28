@@ -1,7 +1,7 @@
 E-commerce extension for Yii2
 =========
 Provides support for basic e-commerce operations as a wrapper for [opus-online/yii2-payment](https://github.com/opus-online/yii2-payment). 
-For usage examples see [opus-online/yii2-app-ecom](https://github.com/opus-online/yii2-app-ecom) - a sample application using this extension. 
+For usage examples see [opus-online/yii2-app-ecom](https://github.com/opus-online/yii2-app-ecom) - a sample application using this extension. This guide assumes that you are familiar with implementations of Estonian bank payments (see [pangalink.net](http://pangalink.net))
 
 Main features:
 - Extensible code, almost everything can be customized
@@ -27,7 +27,16 @@ You can install this package using composer. In your `composer.json` add the fol
 	]
 }
 ```
-The package starts living under `\opus\ecom` namespace.
+Technical overview
+------------------
+The package lives under `\opus\ecom` namespace and consists of 3 sub-components (these can be overridden in configuration and are directly accessible as properties of the main component).
+
+1. **basket** - provides shopping basket functionality
+2. **payment** - provides functionality for receiving payments
+3. **formatter** - helper class used in grid views
+
+Most classes and subclasses can be overridden in the configuration.
+
 Configuration
 -------------
 After the installation you  will probably want to:
@@ -95,6 +104,11 @@ $sum = $basket->getTotalDue();
 
 // clear the basket
 $basket->clear();
+
+// render the contents of the basket with default parameters
+echo \opus\ecom\widgets\BasketGridView::widget([
+    'basket' => $basket,
+]);
 ```
 
 #### Items in the basket
@@ -163,7 +177,9 @@ public function saveFromBasket(Basket $basket)
 If you have saved your Order objects, you can use the included widget `opus\ecom\widgets\PaymentButtons` to render all the bank forms included in your configuration. You can provide your own widget class in the configuration if you need customization (override `widgetClass` under `payment` sub-component). There is a shorthand method for generating the widget with correct parameters:
 ```php
 // generate FORM tags for every bank with hidden inputs and bank logos as submit images
-\Yii::$app->ecom->payment->createWidget($order, [])
+\Yii::$app->ecom
+	->payment
+	->createWidget($order)
 	->run();
 ```
 #### Receiving requests from banks
