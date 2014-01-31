@@ -7,9 +7,9 @@
 
 namespace opus\ecom\basket\storage;
 
-
 use opus\ecom\basket\StorageInterface;
 use opus\ecom\Basket;
+use yii\base\InvalidConfigException;
 use yii\base\Object;
 use yii\db\Connection;
 use yii\db\Query;
@@ -19,9 +19,9 @@ use yii\web\User;
  * Database-adapter for basket data storage. Assumes the existence of a table similar to:
  *
  * CREATE TABLE `eco_basket` (
- *	`session_id` varchar(255) NOT NULL,
- *	`basket_data` blob NOT NULL,
- *	PRIMARY KEY (`session_id`)) ENGINE=InnoDB;
+ *    `session_id` varchar(255) NOT NULL,
+ *    `basket_data` blob NOT NULL,
+ *    PRIMARY KEY (`session_id`)) ENGINE=InnoDB;
  *
  * If userComponent is set, it tries to call getId() from the component and use the result as user identifier. If it
  * fails, or if $userComponent is not set, it will use session_id as user identifier
@@ -56,6 +56,11 @@ class Database extends Object implements StorageInterface
 	public $dataField = 'basket_data';
 
 	/**
+	 * @var bool If set to true, empty basket entries will be deleted
+	 */
+	public $deleteIfEmpty = false;
+
+	/**
 	 * @var Connection
 	 */
 	private $_db;
@@ -64,6 +69,9 @@ class Database extends Object implements StorageInterface
 	 */
 	private $_user;
 
+	/**
+	 * @inheritdoc
+	 */
 	public function init()
 	{
 		parent::init();
@@ -72,8 +80,11 @@ class Database extends Object implements StorageInterface
 		if (isset($this->userComponent)) {
 			$this->_user = \Yii::$app->getComponent($this->userComponent);
 		}
-	}
 
+		if (!isset($this->table)) {
+			throw new InvalidConfigException('Please specify "table" in basket configuration');
+		}
+	}
 
 	/**
 	 * @param Basket $basket
@@ -90,11 +101,24 @@ class Database extends Object implements StorageInterface
 
 		$items = [];
 
-		if ($data = $this->_db->createCommand($query)->queryOne()) {
+		if ($data = $query->createCommand($this->_db)->queryScalar()) {
 			$items = unserialize($data);
 		}
 
 		return $items;
+	}
+
+	/**
+	 * @param string $default
+	 * @return string
+	 */
+	protected function getIdentifier($default)
+	{
+		$id = $default;
+		if ($this->_user instanceof User) {
+			$id = $this->_user->getId();
+		}
+		return $id;
 	}
 
 	/**
@@ -105,27 +129,24 @@ class Database extends Object implements StorageInterface
 	{
 		$identifier = $this->getIdentifier($basket->getSession()->getId());
 
-		$sessionData = serialize($basket->getItems());
+		$items = $basket->getItems();
+		$sessionData = serialize($items);
 
-		$this->_db->createCommand()
-			->update($this->table, [
-				$this->dataField => $sessionData
-			], [
-				$this->idField => $identifier
-			])->execute();
-	}
+		$command = $this->_db->createCommand();
 
-	/**
-	 * @param string $default
-	 * @return string
-	 */
-	protected function getIdentifier($default)
-	{
-		$id = $default;
-		if ($this->_user instanceof User)
-		{
-			$id = $this->_user->getId();
+		if (empty($items) && true === $this->deleteIfEmpty) {
+			$command->delete($this->table, [$this->idField => $identifier]);
+		} else {
+			$command->setSql("
+                REPLACE {{{$this->table}}}
+                SET
+                    {{{$this->dataField}}} = :val,
+                    {{{$this->idField}}} = :id
+            ")->bindValues([
+					':id' => $identifier,
+					':val' => $sessionData,
+				]);
 		}
-		return $id;
+		$command->execute();
 	}
 }

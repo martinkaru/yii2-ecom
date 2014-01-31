@@ -193,7 +193,7 @@ class Basket extends \yii\base\Component
      * @param \opus\ecom\basket\StorageInterface|string $storage
      * @return Basket
      */
-    public function setStorage(StorageInterface $storage)
+    public function setStorage($storage)
     {
         $this->_storage = $storage;
         return $this;
