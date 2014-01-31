@@ -8,7 +8,6 @@
 namespace opus\ecom;
 
 use opus\ecom\basket\Item;
-use opus\ecom\basket\StorageInterface;
 use opus\ecom\models\OrderableInterface;
 use opus\ecom\models\PurchasableInterface;
 use yii\base\InvalidParamException;
@@ -158,16 +157,67 @@ class Basket extends \yii\base\Component
     }
 
     /**
+     * Returns the total price of all items and applies custom functionality to the sum (calls finalizeBasketPrice).
+     * Most likely this is a number with custom discounts applied.
+     *
      * @param bool $format
-     * @return float|int|string
+     * @param bool $withVat
+     * @param string|null $modelClass
+     * @return int|string
      */
-    public function getTotalDue($format = true)
+    public function getTotalDue($format = true, $withVat = true)
+    {
+        $sum = $this->getItemsTotalPrice(false, $withVat);
+        $sum = $this->component->finalizeBasketPrice($sum, $this);
+        $sum = max(0, $sum);
+        return $format ? $this->component->formatter->asPrice($sum) : $sum;
+    }
+
+    /**
+     * Returns the total price of all items in the basket.
+     *
+     * @param bool $format
+     * @param bool $withVat
+     * @param string|null $modelClass
+     * @return int|string
+     */
+    public function getItemsTotalPrice($format = true, $withVat = true, $modelClass = null)
+    {
+        $sum = 0;
+        foreach ($this->getItems($modelClass) as $item) {
+            $sum += $item->getTotalPrice($withVat);
+        }
+        return $format ? $this->component->formatter->asPrice($sum) : $sum;
+    }
+
+    /**
+     * Returns the difference between finalized basket price and the sum of all items. If you haven't done any custom
+     * price modification, this most likely returns 0
+     *
+     * @param bool $format
+     * @param string|null $modelClass
+     */
+    public function getTotalDiscounts($format = true, $modelClass = null)
+    {
+        $totalPrice = $this->getItemsTotalPrice(false, true, $modelClass);
+        $totalDue = $this->getTotalDue(false, true);
+
+        $sum = $totalDue - $totalPrice;
+        return $format ? $this->component->formatter->asPrice($sum) : $sum;
+    }
+
+    /**
+     * Returns total VAT for all items in basket
+     *
+     * @param bool $format
+     * @return int|string
+     */
+    public function getTotalVat($format = true)
     {
         $sum = 0;
         foreach ($this->getItems() as $item) {
-            $sum += $item->getTotalPrice();
+            $sum += $item->getTotalVat();
         }
-        $sum = $this->component->finalizeBasketPrice($sum, $this);
         return $format ? $this->component->formatter->asPrice($sum) : $sum;
     }
 

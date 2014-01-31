@@ -51,6 +51,11 @@ class Item extends Model implements \Serializable
      */
     public $label;
 
+	/**
+	 * @var double
+	 */
+	public $vatPercent = 0;
+
     /**
      * @var double
      */
@@ -116,6 +121,7 @@ class Item extends Model implements \Serializable
                 'label',
                 'price',
                 'pkValue',
+	            'vatPercent',
                 'modelClass',
                 'modelAttributes',
                 'uniqueId'
@@ -124,13 +130,23 @@ class Item extends Model implements \Serializable
         ];
     }
 
-    /**
-     * @return double
-     */
-    public function getTotalPrice()
+	/**
+	 * @param bool $withVat
+	 * @return int|double
+	 */
+    public function getTotalPrice($withVat = true)
     {
-        return $this->price * $this->quantity;
+	    $price = $this->price * $this->quantity;
+        return $withVat ? $price : $price - ($price * $this->vatPercent);
     }
+
+	/**
+	 * @return float
+	 */
+	public function getTotalVat()
+	{
+		return $this->getTotalPrice() * $this->vatPercent;
+	}
 
     /**
      * @inheritdoc
