@@ -199,3 +199,27 @@ public function bankReturn(Response $response)
     return $this;
 }
 ```
+Additional examples
+-------------------
+
+### Storing basket data in database
+There are two built-in adapters for storing basket data: session storage (default) and database storage. You can also write your own storage classes and define them in configuration under `basket` component:
+```php
+'ecom' => [
+    'class' => 'app\components\MyEcomComponent',
+    'basket' => [
+        'class' => 'opus\ecom\Basket',
+        'storage' => [
+            'class' => 'opus\ecom\basket\storage\Database',
+            'table' => 'eco_basket',
+        ]
+    ],
+```
+In addition to table name, you can override both field names (one for user identifier and another for session data). If `Database::$userComponent` is set (for example to `user`), then the adapter will try to ask the user identifier via `\Yii::$app->user->getId()` method. If this fails or the component name is not specified, session ID will be used to identify the user. The session table should have at least two fields and look similar to this:
+```SQL
+CREATE TABLE `eco_basket` (
+	`session_id` varchar(255) NOT NULL,
+	`basket_data` blob NOT NULL,
+	PRIMARY KEY (`session_id`)
+) ENGINE=InnoDB;
+```
