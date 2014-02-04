@@ -52,12 +52,12 @@ class Item extends Model implements \Serializable
     public $label;
 
 	/**
-	 * @var double
+	 * @var float
 	 */
 	public $vatPercent = 0;
 
     /**
-     * @var double
+     * @var float
      */
     public $quantity = 1;
 
@@ -69,7 +69,7 @@ class Item extends Model implements \Serializable
     /**
      * @var PurchasableInterface
      */
-    private $_model;
+    private $model;
 
     /**
      * @param PurchasableInterface $element
@@ -101,13 +101,13 @@ class Item extends Model implements \Serializable
     public function getModel($reload = false)
     {
         if (true === $reload) {
-            $this->_model = call_user_func([$this->modelClass, 'find'], $this->pkValue);
+            $this->model = call_user_func([$this->modelClass, 'find'], $this->pkValue);
         } else {
-            if (!isset($this->_model)) {
-                $this->_model = new $this->modelClass($this->modelAttributes);
+            if (!isset($this->model)) {
+                $this->model = new $this->modelClass($this->modelAttributes);
             }
         }
-        return $this->_model;
+        return $this->model;
     }
 
     /**
@@ -132,7 +132,7 @@ class Item extends Model implements \Serializable
 
 	/**
 	 * @param bool $withVat
-	 * @return int|double
+	 * @return int|float
 	 */
     public function getTotalPrice($withVat = true)
     {

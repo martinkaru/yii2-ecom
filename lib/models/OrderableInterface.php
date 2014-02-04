@@ -29,7 +29,7 @@ interface OrderableInterface
     /**
      * Returns the total money due for this order. Should return a value of type double
      *
-     * @return double
+     * @return float
      */
     public function getTransactionSum();
 

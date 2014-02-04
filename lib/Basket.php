@@ -10,6 +10,7 @@ namespace opus\ecom;
 use opus\ecom\basket\Item;
 use opus\ecom\models\OrderableInterface;
 use opus\ecom\models\PurchasableInterface;
+use yii\base\Component;
 use yii\base\InvalidParamException;
 use yii\web\Session;
 
@@ -21,8 +22,9 @@ use yii\web\Session;
  * @package opus\ecom
  *
  * @property int $count
+ * @property Session $session
  */
-class Basket extends \yii\base\Component
+class Basket extends Component
 {
     use SubComponentTrait;
 
@@ -37,20 +39,20 @@ class Basket extends \yii\base\Component
     /**
      * @var Session
      */
-    private $_session;
+    private $session;
     /**
      * Override this to provide custom (e.g. database) storage for basket data
      *
      * @var string|\opus\ecom\basket\StorageInterface
      */
-    private $_storage = 'opus\ecom\basket\storage\Session';
+    private $storage = 'opus\ecom\basket\storage\Session';
 
     /**
      * @inheritdoc
      */
     public function init()
     {
-        $this->storage = \Yii::createObject($this->storage);
+        $this->setStorage(\Yii::createObject($this->storage));
         $this->setItems($this->storage->load($this));
     }
 
@@ -162,7 +164,6 @@ class Basket extends \yii\base\Component
      *
      * @param bool $format
      * @param bool $withVat
-     * @param string|null $modelClass
      * @return int|string
      */
     public function getTotalDue($format = true, $withVat = true)
@@ -196,6 +197,7 @@ class Basket extends \yii\base\Component
      *
      * @param bool $format
      * @param string|null $modelClass
+     * @return int|string
      */
     public function getTotalDiscounts($format = true, $modelClass = null)
     {
@@ -227,7 +229,7 @@ class Basket extends \yii\base\Component
      */
     public function setSession(Session $session)
     {
-        $this->_session = $session;
+        $this->session = $session;
         return $this;
     }
 
@@ -236,7 +238,7 @@ class Basket extends \yii\base\Component
      */
     public function getSession()
     {
-        return $this->_session;
+        return $this->session;
     }
 
     /**
@@ -245,7 +247,7 @@ class Basket extends \yii\base\Component
      */
     public function setStorage($storage)
     {
-        $this->_storage = $storage;
+        $this->storage = $storage;
         return $this;
     }
 
@@ -254,6 +256,6 @@ class Basket extends \yii\base\Component
      */
     protected function getStorage()
     {
-        return $this->_storage;
+        return $this->storage;
     }
 } 

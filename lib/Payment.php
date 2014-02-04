@@ -50,7 +50,7 @@ class Payment extends PaymentHandlerBase
     /**
      * @var \opus\payment\services\Payment
      */
-    private $_service;
+    private $service;
 
     /**
      * @inheritdoc
@@ -80,7 +80,7 @@ class Payment extends PaymentHandlerBase
             + $widgetOptions
             + [
                 'transaction' => $transaction,
-                'service' => $this->service
+                'service' => $this->getService()
             ];
 
         $widget = \Yii::createObject($widgetConfig);
@@ -112,7 +112,7 @@ class Payment extends PaymentHandlerBase
     public function handleResponse(array $request, $arClassName)
     {
         /** @var $response Response */
-        $response = $this->service->handleResponse($request); // throws exceptions on error
+        $response = $this->getService()->handleResponse($request); // throws exceptions on error
         $transaction = $response->getTransaction();
 
         if ($elementId = $transaction->getTransactionId(null)) {
@@ -141,9 +141,9 @@ class Payment extends PaymentHandlerBase
      */
     protected function getService()
     {
-        if (!isset($this->_service)) {
-            $this->_service = $this->createService(self::SERVICE_PAYMENT);
+        if (!isset($this->service)) {
+            $this->service = $this->createService(self::SERVICE_PAYMENT);
         }
-        return $this->_service;
+        return $this->service;
     }
 }

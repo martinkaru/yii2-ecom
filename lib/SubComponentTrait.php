@@ -20,7 +20,7 @@ trait SubComponentTrait
     /**
      * @var Component
      */
-    private $_component;
+    private $component;
 
     /**
      * @param \opus\ecom\Component $component
@@ -28,7 +28,7 @@ trait SubComponentTrait
      */
     public function setComponent(Component $component)
     {
-        $this->_component = $component;
+        $this->component = $component;
         return $this;
     }
 
@@ -37,6 +37,6 @@ trait SubComponentTrait
      */
     protected function getComponent()
     {
-        return $this->_component;
+        return $this->component;
     }
 } 

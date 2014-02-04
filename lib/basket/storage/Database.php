@@ -63,11 +63,11 @@ class Database extends Object implements StorageInterface
 	/**
 	 * @var Connection
 	 */
-	private $_db;
+	private $db;
 	/**
 	 * @var User
 	 */
-	private $_user;
+	private $user;
 
 	/**
 	 * @inheritdoc
@@ -75,10 +75,10 @@ class Database extends Object implements StorageInterface
 	public function init()
 	{
 		parent::init();
-		$this->_db = \Yii::$app->getComponent($this->dbComponent);
+		$this->db = \Yii::$app->getComponent($this->dbComponent);
 
 		if (isset($this->userComponent)) {
-			$this->_user = \Yii::$app->getComponent($this->userComponent);
+			$this->user = \Yii::$app->getComponent($this->userComponent);
 		}
 
 		if (!isset($this->table)) {
@@ -101,7 +101,7 @@ class Database extends Object implements StorageInterface
 
 		$items = [];
 
-		if ($data = $query->createCommand($this->_db)->queryScalar()) {
+		if ($data = $query->createCommand($this->db)->queryScalar()) {
 			$items = unserialize($data);
 		}
 
@@ -115,8 +115,8 @@ class Database extends Object implements StorageInterface
 	protected function getIdentifier($default)
 	{
 		$id = $default;
-		if ($this->_user instanceof User) {
-			$id = $this->_user->getId();
+		if ($this->user instanceof User) {
+			$id = $this->user->getId();
 		}
 		return $id;
 	}
@@ -132,7 +132,7 @@ class Database extends Object implements StorageInterface
 		$items = $basket->getItems();
 		$sessionData = serialize($items);
 
-		$command = $this->_db->createCommand();
+		$command = $this->db->createCommand();
 
 		if (empty($items) && true === $this->deleteIfEmpty) {
 			$command->delete($this->table, [$this->idField => $identifier]);

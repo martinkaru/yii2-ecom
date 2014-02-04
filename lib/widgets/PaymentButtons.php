@@ -30,29 +30,29 @@ class PaymentButtons extends PaymentWidget
     /**
      * @var OrderableInterface
      */
-    private $_order;
+    protected $order;
     /**
      * @var Payment
      */
-    private $_service;
+    protected $service;
     /**
      * @var Transaction
      */
-    private $_transaction;
+    protected $transaction;
     /**
      * @var PayAssetBundle
      */
-    private $_asset;
+    protected $asset;
 
     public function init()
     {
-        $this->_asset = PayAssetBundle::register($this->view);
+        $this->asset = PayAssetBundle::register($this->view);
         parent::init();
     }
 
     public function run()
     {
-        $this->forms = $this->_service->generateForms($this->_transaction);
+        $this->forms = $this->service->generateForms($this->transaction);
         parent::run();
     }
 
@@ -62,7 +62,7 @@ class PaymentButtons extends PaymentWidget
      */
     public function setOrder(OrderableInterface $order)
     {
-        $this->_order = $order;
+        $this->order = $order;
         return $this;
     }
 
@@ -72,7 +72,7 @@ class PaymentButtons extends PaymentWidget
      */
     public function setService(Payment $service)
     {
-        $this->_service = $service;
+        $this->service = $service;
         return $this;
     }
 
@@ -82,7 +82,7 @@ class PaymentButtons extends PaymentWidget
      */
     public function setTransaction(Transaction $transaction)
     {
-        $this->_transaction = $transaction;
+        $this->transaction = $transaction;
         return $this;
     }
 
@@ -91,7 +91,7 @@ class PaymentButtons extends PaymentWidget
      */
     protected function generateSubmit(Form $form)
     {
-        $image = $this->_asset->baseUrl . '/banks/' . strtolower($form->getProviderTag()) . '.jpg';
+        $image = $this->asset->baseUrl . '/banks/' . strtolower($form->getProviderTag()) . '.jpg';
         return Html::input('image', $form->getProviderName(), null, ['src' => $image]);
     }
 }
