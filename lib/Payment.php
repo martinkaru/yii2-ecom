@@ -15,7 +15,7 @@ use opus\payment\services\payment\Transaction;
 use yii\db\ActiveRecord;
 
 /**
- * Class Payment
+ * This class adds some convenience functionality to the \opus\payment component
  *
  * @author Ivo Kund <ivo@opus.ee>
  * @package opus\ecom

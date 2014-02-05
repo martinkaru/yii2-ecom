@@ -23,5 +23,4 @@ class Formatter extends \yii\i18n\Formatter
     {
         return $this->format($value / 100, 'currency');
     }
-
-} 
+}

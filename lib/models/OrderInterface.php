@@ -11,7 +11,7 @@ use opus\ecom\Basket;
 use opus\payment\services\payment\Response;
 
 /**
- * Class OrderableInterface
+ * Any object that represents an order and is to be used in conjunction with the Basket object, should implement this interface.
  *
  * @author Ivo Kund <ivo@opus.ee>
  * @package opus\ecom\models
@@ -41,6 +41,8 @@ interface OrderInterface
     public function getPrimaryKey();
 
     /**
+     * This action is called when user returns from the bank.
+     *
      * @param Response $response
      * @return OrderInterface
      */

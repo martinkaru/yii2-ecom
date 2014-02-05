@@ -8,7 +8,7 @@
 namespace opus\ecom\models;
 
 /**
- * Interface BasketItemInterface
+ * All objects that can be added to the basket must implement this interface
  *
  * @package opus\ecom\models
  */

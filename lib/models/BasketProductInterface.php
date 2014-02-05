@@ -10,7 +10,7 @@ namespace opus\ecom\models;
 use opus\ecom\Basket;
 
 /**
- * Interface PurchasableInterface
+ * All 'purchasable' objects that can be added to the basket must implement this interface.
  *
  * @package opus\ecom\models
  */

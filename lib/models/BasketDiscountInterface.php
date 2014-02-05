@@ -10,7 +10,8 @@ namespace opus\ecom\models;
 use opus\ecom\Basket;
 
 /**
- * Interface BasketSpecialItemInterface
+ * All objects that can be added to the basket and that have any special effect to the basket or basket
+ * price (e.g. discounts) should implement this interface
  *
  * @package opus\ecom\models
  */
