@@ -7,7 +7,7 @@
 
 namespace opus\ecom;
 
-use opus\ecom\models\OrderableInterface;
+use opus\ecom\models\OrderInterface;
 use opus\payment\services\payment\Transaction;
 
 /**
@@ -72,10 +72,10 @@ class Component extends \yii\base\Component
     /**
      * Override this to write custom parameters to the transaction (e.g. comment) before it's sent to the bank
      *
-     * @param OrderableInterface $order
+     * @param OrderInterface $order
      * @param Transaction $transaction
      */
-    public function finalizeTransaction(OrderableInterface $order, Transaction $transaction)
+    public function finalizeTransaction(OrderInterface $order, Transaction $transaction)
     {
         // default behaviour does not alter transaction object
     }

@@ -73,28 +73,32 @@ The following examples assume that you have registered `opus\ecom\Component` (or
 ### Using ActiveRecord integration
 ActiveRecord integration makes it very easy to add items to shopping basket and to use the basket to create orders and payment forms. Currently there are two kind of AR integration available.
 
-1. Implement `opus\ecom\models\PurchasableInterface` in your AR model class to add support for products, services, discounts etc. 
-2. Implement `opus\ecom\models\OrderableInterface` to add support for orders.
+1. Implement `opus\ecom\models\BasketProductInterface` in your AR model class to add support for products and services.
+2. Implement `opus\ecom\models\BasketDiscountInterface` to add support for discounts.
+3. Implement `opus\ecom\models\OrderableInterface` to add support for orders.
 
 
 
 ### Using the shopping basket
-Operations with the shopping basket are very straightforward when using a model that implements `PurchasableInterface`. The basket object can be accessed under `\Yii::$app->ecom->basket` and can be overridden in configuration if you need to customize it. 
+Operations with the shopping basket are very straightforward when using a model that implements `BasketProductInterface`. The basket object can be accessed under `\Yii::$app->ecom->basket` and can be overridden in configuration if you need to customize it.
 ```php
 // access the basket from "basket" subcomponent
 $basket = \Yii::$app->ecom->basket;
 
-// Product is an AR model implementing PurchasableInterface
+// Product is an AR model implementing BasketProductInterface
 $product = Product::find(1);
 
 // add an item to the basket
 $basket->add($product);
 
-// add an item with "quantity" property of the Item class set to 2
-$basket->add($product, ['quantity' => 2]);
+// add a discount object to the basket. AR model is implementing BasketDiscountInterface
+$basket->add(Discount::find(1));
 
 // returns the sum of all basket item prices
 $sum = $basket->getTotalDue();
+
+// returns the sum of all 'vat' attributes (or return values of getVat()) from all models in the basket.
+$totalVat = $basket->getAttributeTotal('vat');
 
 // clear the basket
 $basket->clear();
@@ -106,33 +110,29 @@ echo \opus\ecom\widgets\BasketGridView::widget([
 ```
 
 #### Items in the basket
-Products/items in the basket are stored as instances of `opus\ecom\basket\Item` that is a child class of `yii\base\Model`. You can override this class in the configuration to use your custom objects. 
+Products/items that are added to the basket are serialized/unserialized when saving and loading data from basket storage.
+If you are using Active Record models as products/discounts, make sure that you are omitting any unnecessary references from
+the serialized data to keep it compact.
 
 ```php
 // get all items from the basket
 $items = $basket->getItems();
 
-// get only items of Product class
-$items = $basket->getItems(Product::className());
+// get only products
+$items = $basket->getItems(Basket::ITEM_PRODUCT);
 
 // loop through basket items
 foreach ($items as $item) {
-	// use any Model-related method on items
+	// access any attribute/method from the model
 	var_dump($item->getAttributes());
-	
-	// generates an AR object based on model attributes stored in session
-	$cachedModel = $item->getModel();
-	
-	// loads an AR model from the database
-	$realModel = $item->getModel(true);
-	
+
 	// remove an item from the basket by its ID
 	$basket->remove($item->uniqueId)
 }
 ```
 
 ### Creating orders
-The basket object can easily be converted into orders (AR objects that implement the `OrderableInterface`).
+The basket object can easily be converted into orders (AR objects that implement the `OrderInterface`).
 ```php
 $order = new Order([
 	'user_id' = \Yii::$app->user->id,
@@ -222,4 +222,23 @@ CREATE TABLE `eco_basket` (
 	`basket_data` blob NOT NULL,
 	PRIMARY KEY (`session_id`)
 ) ENGINE=InnoDB;
+```
+### Using discounts
+To add discounts to the basket/order, simply add an object implementing `BasketDiscountInterface` to the basket and specify
+the discount logic in `applyToBasket` method.
+
+```php
+class MyDiscount implements BasketDiscountInterface
+{
+    public function applyToBasket(Basket $basket, &$basketTotalSum)
+    {
+        // subtract a value
+        $basketTotalSum -= 10;
+
+        // or add a X percent discount
+        $basketTotalSum *= 0.7;
+    }
+}
+
+\Yii::$app->ecom->basket->add(new MyDiscount);
 ```

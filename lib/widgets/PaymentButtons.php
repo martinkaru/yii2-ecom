@@ -8,7 +8,7 @@
 namespace opus\ecom\widgets;
 
 use opus\ecom\assets\PayAssetBundle;
-use opus\ecom\models\OrderableInterface;
+use opus\ecom\models\OrderInterface;
 use opus\ecom\SubComponentTrait;
 use opus\payment\services\payment\Form;
 use opus\payment\services\payment\Transaction;
@@ -22,13 +22,13 @@ use yii\helpers\Html;
  * @author Ivo Kund <ivo@opus.ee>
  * @package opus\ecom\widgets
  *
- * @property OrderableInterface order
+ * @property OrderInterface order
  * @property Payment service
  */
 class PaymentButtons extends PaymentWidget
 {
     /**
-     * @var OrderableInterface
+     * @var OrderInterface
      */
     protected $order;
     /**
@@ -57,10 +57,10 @@ class PaymentButtons extends PaymentWidget
     }
 
     /**
-     * @param \opus\ecom\models\OrderableInterface $order
+     * @param \opus\ecom\models\OrderInterface $order
      * @return PaymentButtons
      */
-    public function setOrder(OrderableInterface $order)
+    public function setOrder(OrderInterface $order)
     {
         $this->order = $order;
         return $this;

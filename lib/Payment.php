@@ -7,7 +7,7 @@
 
 namespace opus\ecom;
 
-use opus\ecom\models\OrderableInterface;
+use opus\ecom\models\OrderInterface;
 use opus\ecom\widgets\PaymentButtons;
 use opus\payment\PaymentHandlerBase;
 use opus\payment\services\payment\Response;
@@ -67,11 +67,11 @@ class Payment extends PaymentHandlerBase
     /**
      * This is a convenience method for generating a payment widget that generates all payment forms (using self::$widgetClass)
      *
-     * @param OrderableInterface $order
+     * @param OrderInterface $order
      * @param array $widgetOptions
      * @return PaymentButtons
      */
-    public function createWidget(OrderableInterface $order, $widgetOptions = [])
+    public function createWidget(OrderInterface $order, $widgetOptions = [])
     {
         $transaction = $this->createTransaction($order);
 
@@ -90,10 +90,10 @@ class Payment extends PaymentHandlerBase
     /**
      * Creates a new transaction based on an order. Also calls opus\ecom\Component::finalizeTransaction
      *
-     * @param OrderableInterface $order
+     * @param OrderInterface $order
      * @return Transaction
      */
-    public function createTransaction(OrderableInterface $order)
+    public function createTransaction(OrderInterface $order)
     {
         $transaction = $this
             ->createService(self::SERVICE_PAYMENT)
@@ -106,7 +106,7 @@ class Payment extends PaymentHandlerBase
     /**
      * @param array $request
      * @param $arClassName
-     * @return OrderableInterface|ActiveRecord
+     * @return OrderInterface|ActiveRecord
      * @throws \InvalidArgumentException
      */
     public function handleResponse(array $request, $arClassName)
@@ -118,7 +118,7 @@ class Payment extends PaymentHandlerBase
         if ($elementId = $transaction->getTransactionId(null)) {
             /** @var $arClassName ActiveRecord */
             $orderModel = $arClassName::find($elementId);
-            if ($orderModel instanceof OrderableInterface) {
+            if ($orderModel instanceof OrderInterface) {
                 return $orderModel->bankReturn($response);
             }
         }

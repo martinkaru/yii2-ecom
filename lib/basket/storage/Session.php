@@ -28,11 +28,11 @@ class Session implements StorageInterface
      */
     public function load(Basket $basket)
     {
-        $items = [];
+        $basketData = [];
         if (false !== ($session = ($basket->session->get($this->basketVar, false)))) {
-            $items = unserialize($session);
+            $basketData = unserialize($session);
         }
-        return $items;
+        return $basketData;
     }
 
     /**

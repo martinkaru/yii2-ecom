@@ -16,7 +16,7 @@ use opus\payment\services\payment\Response;
  * @author Ivo Kund <ivo@opus.ee>
  * @package opus\ecom\models
  */
-interface OrderableInterface
+interface OrderInterface
 {
     /**
      * This method should load the contents of the basket and save the order with all its item in the database
@@ -42,7 +42,7 @@ interface OrderableInterface
 
     /**
      * @param Response $response
-     * @return OrderableInterface
+     * @return OrderInterface
      */
     public function bankReturn(Response $response);
 } 

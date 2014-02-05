@@ -25,19 +25,19 @@ class BasketGridView extends GridView
     public $basket;
 
     /**
-     * @var string Only items of that type will be rendered. Defaults to null meaning all items will be rendered
+     * @var string Only items of that type will be rendered. Defaults to Basket::ITEM_PRODUCT
      */
-    public $itemClass = null;
+    public $itemType = Basket::ITEM_PRODUCT;
 
     public function init()
     {
         if (!isset($this->dataProvider)) {
             $this->dataProvider = new ArrayDataProvider([
-                'key' => 'uniqueId',
-                'allModels' => $this->basket->getItems($this->itemClass),
+                'allModels' => $this->basket->getItems($this->itemType),
                 'pagination' => false,
             ]);
         }
         parent::init();
     }
+
 }

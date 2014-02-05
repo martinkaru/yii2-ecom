@@ -8,9 +8,9 @@
 namespace opus\ecom;
 
 use opus\ecom\basket\Item;
-use opus\ecom\models\OrderableInterface;
-use opus\ecom\models\PurchasableInterface;
-use yii\base\Component;
+use opus\ecom\models\BasketDiscountInterface;
+use opus\ecom\models\BasketItemInterface;
+use opus\ecom\models\OrderInterface;
 use yii\base\InvalidParamException;
 use yii\web\Session;
 
@@ -26,6 +26,10 @@ use yii\web\Session;
  */
 class Basket extends Component
 {
+    const ITEM_PRODUCT = '\opus\ecom\models\BasketProductInterface';
+    const ITEM_DISCOUNT = '\opus\ecom\models\BasketDiscountInterface';
+
+
     use SubComponentTrait;
 
     /**
@@ -35,7 +39,8 @@ class Basket extends Component
     /**
      * @var array
      */
-    protected $items = [];
+    protected $items;
+
     /**
      * @var Session
      */
@@ -52,21 +57,13 @@ class Basket extends Component
      */
     public function init()
     {
+//        $_SESSION = [];
+
+        $this->clear(false);
         $this->setStorage(\Yii::createObject($this->storage));
-        $this->setItems($this->storage->load($this));
+        $this->items = $this->storage->load($this);
     }
 
-    /**
-     * @param Item[] $items
-     */
-    protected function setItems(array $items)
-    {
-        $this->clear(false);
-        foreach ($items as $item) {
-            $item->basket = $this;
-            $this->addItem($item);
-        }
-    }
 
     /**
      * @param bool $save
@@ -74,23 +71,17 @@ class Basket extends Component
     public function clear($save = true)
     {
         $this->items = [];
+
         $save && $this->storage->save($this);
     }
 
-    /**
-     * @param Item $item
-     */
-    protected function addItem(Item $item)
-    {
-        $this->items[$item->uniqueId] = $item;
-    }
 
     /**
-     * @param OrderableInterface $order
+     * @param OrderInterface $order
      * @param bool $clear
      * @throws \Exception
      */
-    public function createOrder(OrderableInterface $order, $clear = true)
+    public function createOrder(OrderInterface $order, $clear = true)
     {
         try {
             $order->saveFromBasket($this);
@@ -101,19 +92,24 @@ class Basket extends Component
     }
 
     /**
-     * @param PurchasableInterface $element
-     * @param array $options
+     * @param models\BasketItemInterface $element
      * @param bool $save
      */
-    public function add(PurchasableInterface $element, array $options = [], $save = true)
+    public function add(BasketItemInterface $element, $save = true)
     {
-        $className = $this->itemClass;
-
-        /** @var $className Item */
-        $item = new $className($element, $options + ['basket' => $this]);
-        $this->addItem($item);
-
+        $this->addItem($element);
         $save && $this->storage->save($this);
+    }
+
+    /**
+     * @param \opus\ecom\models\BasketItemInterface $item
+     * @internal param $quantity
+     */
+    protected function addItem(BasketItemInterface $item)
+    {
+        $uniqueId = md5(uniqid('_bs', true));
+
+        $this->items[$uniqueId] = $item;
     }
 
     /**
@@ -128,34 +124,47 @@ class Basket extends Component
             throw new InvalidParamException('Item not found');
         }
         unset($this->items[$uniqueId]);
+
         $save && $this->storage->save($this);
         return $this;
     }
 
     /**
-     * @param string $modelClass If specified, only items of that AR model class will be counted
+     * @param string $itemType If specified, only items of that type will be counted
      * @return int
      */
-    public function getCount($modelClass = null)
+    public function getCount($itemType = null)
     {
-        return count($this->getItems($modelClass));
+        return count($this->getItems($itemType));
     }
 
     /**
-     * @param string $modelClass If specified, only items of that AR model class will be returned
-     * @return Item[]
+     * @param string $itemType One of self::ITEM_ constants
+     * @return BasketItemInterface[]
      */
-    public function getItems($modelClass = null)
+    public function getItems($itemType = null)
     {
         $items = $this->items;
-        if (!is_null($modelClass)) {
+        if (!is_null($itemType)) {
             $items = array_filter($items,
-                function ($item) use ($modelClass) {
+                function ($item) use ($itemType) {
                     /** @var $item Item */
-                    return $item->modelClass === $modelClass;
+                    return is_subclass_of($item, $itemType);
                 });
         }
         return $items;
+    }
+
+    /**
+     * Finds all items of type $itemType, sums the values of $attribute of all models and returns the sum.
+     */
+    public function getAttributeTotal($attribute, $itemType = null)
+    {
+        $sum = 0;
+        foreach ($this->getItems($itemType) as $model) {
+            $sum += $model->{$attribute};
+        }
+        return $sum;
     }
 
     /**
@@ -163,31 +172,23 @@ class Basket extends Component
      * Most likely this is a number with custom discounts applied.
      *
      * @param bool $format
-     * @param bool $withVat
      * @return int|string
      */
-    public function getTotalDue($format = true, $withVat = true)
+    public function getTotalDue($format = true)
     {
-        $sum = $this->getItemsTotalPrice(false, $withVat);
+        // get item total sum
+        $sum = $this->getAttributeTotal('totalPrice', self::ITEM_PRODUCT);
+
+        // apply discounts
+        foreach ($this->getItems(self::ITEM_DISCOUNT) as $discount)
+        {
+            /** @var $discount BasketDiscountInterface */
+            $discount->applyToBasket($this, $sum);
+
+        }
+
         $sum = $this->component->finalizeBasketPrice($sum, $this);
         $sum = max(0, $sum);
-        return $format ? $this->component->formatter->asPrice($sum) : $sum;
-    }
-
-    /**
-     * Returns the total price of all items in the basket.
-     *
-     * @param bool $format
-     * @param bool $withVat
-     * @param string|null $modelClass
-     * @return int|string
-     */
-    public function getItemsTotalPrice($format = true, $withVat = true, $modelClass = null)
-    {
-        $sum = 0;
-        foreach ($this->getItems($modelClass) as $item) {
-            $sum += $item->getTotalPrice($withVat);
-        }
         return $format ? $this->component->formatter->asPrice($sum) : $sum;
     }
 
@@ -196,32 +197,19 @@ class Basket extends Component
      * price modification, this most likely returns 0
      *
      * @param bool $format
-     * @param string|null $modelClass
      * @return int|string
      */
-    public function getTotalDiscounts($format = true, $modelClass = null)
+    public function getTotalDiscounts($format = true)
     {
-        $totalPrice = $this->getItemsTotalPrice(false, true, $modelClass);
-        $totalDue = $this->getTotalDue(false, true);
+        $sum = $this->getAttributeTotal('totalPrice', self::ITEM_PRODUCT);
 
-        $sum = $totalDue - $totalPrice;
+        $totalDue = $this->getTotalDue(false);
+
+
+        $sum = $sum - $totalDue;
         return $format ? $this->component->formatter->asPrice($sum) : $sum;
     }
 
-    /**
-     * Returns total VAT for all items in basket
-     *
-     * @param bool $format
-     * @return int|string
-     */
-    public function getTotalVat($format = true)
-    {
-        $sum = 0;
-        foreach ($this->getItems() as $item) {
-            $sum += $item->getTotalVat();
-        }
-        return $format ? $this->component->formatter->asPrice($sum) : $sum;
-    }
 
     /**
      * @param \yii\web\Session $session
@@ -258,4 +246,4 @@ class Basket extends Component
     {
         return $this->storage;
     }
-} 
+}
