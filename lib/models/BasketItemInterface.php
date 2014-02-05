@@ -15,7 +15,7 @@ namespace opus\ecom\models;
 interface BasketItemInterface extends \Serializable
 {
     /**
-     * Returns the label for the purchasable item (displayed in basket etc)
+     * Returns the label for the basket item (displayed in basket etc)
      *
      * @return string
      */

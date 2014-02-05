@@ -37,7 +37,7 @@ After the installation you  will probably want to:
 
 1. Override and extend the main class to provide some custom functionality
 2. Register this class as application component
-3. Configure the bank payment parameters and the return URL. 
+3. Configure the bank payment parameters and the return URL
 
 You can use something similar in the application configuration to achieve this:
 ```php
@@ -47,7 +47,7 @@ $config = [
             'class' => 'app\components\MyEcomComponent',
             'payment' => [
                 'class' => 'opus\ecom\Payment',
-                'bankReturnRoute' => 'bankret',// use url alias to shorten the return url
+                'bankReturnRoute' => 'bankret', // use url alias to shorten the return url
                 'adapterConfig' => \yii\helpers\ArrayHelper::merge(require 'banks-default.php', require 'banks-local.php')
             ],
         ],
@@ -64,23 +64,26 @@ class MyEcomComponent extends \opus\ecom\Component
 }
 
 ```
-You can use `banks-default.php` to store general bank configuration (e.g. which banks are used) and define the more specific access parameters in `banks-local.php`, which is environment-specific and is not held in CVS. 
+You can use `banks-default.php` to store general bank configuration (e.g. which banks are used) and define the more
+specific access parameters in `banks-local.php`, which is environment-specific and is not held in CVS. You can download
+the example files from [here](http://demo.opus.ee/projects/ecom/sample-keys.zip).
 
 Usage
 --------------
 The following examples assume that you have registered `opus\ecom\Component` (or its child class) as an application component under `Yii::$app->ecom`.
 
 ### Using ActiveRecord integration
-ActiveRecord integration makes it very easy to add items to shopping basket and to use the basket to create orders and payment forms. Currently there are two kind of AR integration available.
+ActiveRecord integration makes it very easy to add items to shopping basket and to use the basket to create orders and
+payment forms. Currently there are three kinds of AR integration available.
 
-1. Implement `opus\ecom\models\BasketProductInterface` in your AR model class to add support for products and services.
-2. Implement `opus\ecom\models\BasketDiscountInterface` to add support for discounts.
-3. Implement `opus\ecom\models\OrderableInterface` to add support for orders.
-
+1. Implement `opus\ecom\models\BasketProductInterface` in your AR model class to add support for products and services
+2. Implement `opus\ecom\models\BasketDiscountInterface` to add support for discounts
+3. Implement `opus\ecom\models\OrderInterface` to add support for orders
 
 
 ### Using the shopping basket
-Operations with the shopping basket are very straightforward when using a model that implements `BasketProductInterface`. The basket object can be accessed under `\Yii::$app->ecom->basket` and can be overridden in configuration if you need to customize it.
+Operations with the shopping basket are very straightforward when using a models that implement one of the two basket interfaces.
+The basket object can be accessed under `\Yii::$app->ecom->basket` and can be overridden in configuration if you need to customize it.
 ```php
 // access the basket from "basket" subcomponent
 $basket = \Yii::$app->ecom->basket;
@@ -199,7 +202,7 @@ public function bankReturn(Response $response)
     return $this;
 }
 ```
-Additional examples
+Advanced examples
 -------------------
 
 ### Storing basket data in database
