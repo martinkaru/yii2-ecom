@@ -117,7 +117,7 @@ class Payment extends PaymentHandlerBase
 
         if ($elementId = $transaction->getTransactionId(null)) {
             /** @var $arClassName ActiveRecord */
-            $orderModel = $arClassName::find($elementId);
+            $orderModel = $arClassName::findOne($elementId);
             if ($orderModel instanceof OrderInterface) {
                 return $orderModel->bankReturn($response);
             }
