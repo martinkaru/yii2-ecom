@@ -251,4 +251,27 @@ class Basket extends Component
     {
         return $this->storage;
     }
+
+    /**
+     * @param string $uniqueId Unique hash
+     * @return bool
+     */
+    public function has($uniqueId)
+    {
+        return isset($this->items[$uniqueId]);
+    }
+
+    /**
+     * @param string $uniqueId
+     * @param string $attribute
+     * @param string $value
+     */
+    public function update($uniqueId, $attribute, $value)
+    {
+        if (!$this->has($uniqueId) || !$this->items[$uniqueId]->hasAttribute($attribute)) {
+            return false;
+        }
+
+        $this->items[$uniqueId]->setAttribute($attribute, $value);
+    }
 }
