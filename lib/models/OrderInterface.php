@@ -38,7 +38,7 @@ interface OrderInterface
      *
      * @return string
      */
-    public function getPrimaryKey();
+    public function getPKValue();
 
     /**
      * This action is called when user returns from the bank.

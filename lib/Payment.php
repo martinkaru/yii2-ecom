@@ -97,7 +97,7 @@ class Payment extends PaymentHandlerBase
     {
         $transaction = $this
             ->createService(self::SERVICE_PAYMENT)
-            ->createTransaction($order->getPrimaryKey(), $order->getTransactionSum());
+            ->createTransaction($order->getPKValue(), $order->getTransactionSum());
 
         $this->component->finalizeTransaction($order, $transaction);
         return $transaction;

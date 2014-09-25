@@ -31,7 +31,7 @@ class Basket extends Component
     use SubComponentTrait;
 
     /**
-     * @var array
+     * @var BasketItemInterface[]
      */
     protected $items;
 
