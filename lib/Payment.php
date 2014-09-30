@@ -13,6 +13,7 @@ use opus\payment\PaymentHandlerBase;
 use opus\payment\services\payment\Response;
 use opus\payment\services\payment\Transaction;
 use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 
 /**
  * This class adds some convenience functionality to the \opus\payment component
@@ -76,12 +77,12 @@ class Payment extends PaymentHandlerBase
         $transaction = $this->createTransaction($order);
 
         /** @var $widget PaymentButtons */
-        $widgetConfig = (is_string($this->widgetClass) ? ['class' => $this->widgetClass] : $this->widgetClass)
-            + $widgetOptions
-            + [
+        $widgetConfig = ArrayHelper::merge((is_string($this->widgetClass) ? ['class' => $this->widgetClass] : $this->widgetClass),
+            $widgetOptions,
+            [
                 'transaction' => $transaction,
                 'service' => $this->getService()
-            ];
+            ]);
 
         $widget = \Yii::createObject($widgetConfig);
         return $widget;
