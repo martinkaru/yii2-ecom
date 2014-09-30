@@ -47,11 +47,4 @@ interface OrderInterface
      * @return OrderInterface
      */
     public function bankReturn(Response $response);
-
-    /**
-     * Generate the reference number
-     *
-     * @return int
-     */
-    public function getReferenceNumber();
 } 
