@@ -9,10 +9,9 @@ namespace opus\ecom\widgets;
 
 use opus\ecom\assets\PayAssetBundle;
 use opus\ecom\models\OrderInterface;
-use opus\ecom\SubComponentTrait;
+use opus\payment\services\Payment;
 use opus\payment\services\payment\Form;
 use opus\payment\services\payment\Transaction;
-use opus\payment\services\Payment;
 use opus\payment\widgets\PaymentWidget;
 use yii\helpers\Html;
 
