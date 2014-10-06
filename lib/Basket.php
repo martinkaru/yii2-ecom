@@ -7,6 +7,7 @@
 
 namespace opus\ecom;
 
+use opus\ecom\basket\StorageManager;
 use opus\ecom\models\BasketDiscountInterface;
 use opus\ecom\models\BasketItemInterface;
 use opus\ecom\models\OrderInterface;
@@ -34,11 +35,10 @@ class Basket extends Component
      * @var BasketItemInterface[]
      */
     protected $items;
-
     /**
-     * @var Session
+     * @var StorageManager
      */
-    private $session;
+    protected $storageManager;
     /**
      * Override this to provide custom (e.g. database) storage for basket data
      *
@@ -52,8 +52,9 @@ class Basket extends Component
     public function init()
     {
         $this->clear(false);
-        $this->setStorage(\Yii::createObject($this->storage));
-        $this->items = $this->storage->load($this);
+        $this->storageManager = new StorageManager();
+        $this->storageManager->setStorage(\Yii::createObject($this->storage));
+        $this->items = $this->storageManager->load($this);
     }
 
     /**
@@ -66,20 +67,16 @@ class Basket extends Component
     {
         $this->items = [];
 
-        $save && $this->storage->save($this);
+        $save && $this->storageManager->save($this);
         return $this;
     }
 
     /**
-     * Setter for the storage component
-     *
-     * @param \opus\ecom\basket\StorageInterface|string $storage
-     * @return Basket
+     * @return StorageManager
      */
-    public function setStorage($storage)
+    public function getStorageManager()
     {
-        $this->storage = $storage;
-        return $this;
+        return $this->storageManager;
     }
 
     /**
@@ -111,7 +108,7 @@ class Basket extends Component
     public function add(BasketItemInterface $element, $save = true)
     {
         $this->addItem($element);
-        $save && $this->storage->save($this);
+        $save && $this->storageManager->save($this);
         return $this;
     }
 
@@ -140,7 +137,7 @@ class Basket extends Component
         }
         unset($this->items[$uniqueId]);
 
-        $save && $this->storage->save($this);
+        $save && $this->storageManager->save($this);
         return $this;
     }
 
@@ -227,38 +224,16 @@ class Basket extends Component
     }
 
     /**
-     * @param \yii\web\Session $session
-     * @return Basket
-     */
-    public function setSession(Session $session)
-    {
-        $this->session = $session;
-        return $this;
-    }
-
-    /**
-     * @return \yii\web\Session
-     */
-    public function getSession()
-    {
-        return $this->session;
-    }
-
-    /**
-     * @return \opus\ecom\basket\StorageInterface|string
-     */
-    protected function getStorage()
-    {
-        return $this->storage;
-    }
-
-    /**
-     * @param string $uniqueId Unique hash
+     * @param param BasketItemInterface|string $item
      * @return bool
      */
-    public function has($uniqueId)
+    public function has($item)
     {
-        return isset($this->items[$uniqueId]);
+        if ($item instanceof BasketItemInterface) {
+            return in_array($item, $this->getItems(), true);
+        } else {
+            return isset($this->items[$item]);
+        }
     }
 
     /**

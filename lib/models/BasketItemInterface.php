@@ -20,4 +20,17 @@ interface BasketItemInterface extends \Serializable
      * @return string
      */
     public function getLabel();
+    /**
+     * Checks if the item is valid
+     * Errors are viewable through $this->getErrors();
+     *
+     * @return bool
+     */
+    public function validateItem();
+    /**
+     * Returns all errors for current model (after validating)
+     *
+     * @return string[]
+     */
+    public function getItemErrors();
 } 
