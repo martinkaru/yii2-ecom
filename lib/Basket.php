@@ -253,19 +253,6 @@ class Basket extends Component
     }
 
     /**
-     * @param param BasketItemInterface|string $item
-     * @return bool
-     */
-    public function has($item)
-    {
-        if ($item instanceof BasketItemInterface) {
-            return $this->hasModel($item);
-        } else {
-            return isset($this->items[$item]);
-        }
-    }
-
-    /**
      * @param string $uniqueId
      * @param string $attribute
      * @param string $value
@@ -273,7 +260,7 @@ class Basket extends Component
      */
     public function update($uniqueId, $attribute, $value)
     {
-        if (!$this->has($uniqueId) || !$this->items[$uniqueId]->hasAttribute($attribute)) {
+        if (!isset($this->items[$uniqueId]) || !$this->items[$uniqueId]->hasAttribute($attribute)) {
             return false;
         }
 
@@ -298,28 +285,5 @@ class Basket extends Component
             }
         }
         return count($errors) === 0;
-    }
-
-    /**
-     * Checks if an item with the same [type and PK] already exists
-     * @param $item
-     * @return bool
-     */
-    protected function hasModel(BasketItemInterface $item)
-    {
-        if (is_subclass_of($item, self::ITEM_PRODUCT)) {
-            $itemType = self::ITEM_PRODUCT;
-        } elseif (is_subclass_of($item, self::ITEM_DISCOUNT)) {
-            $itemType = self::ITEM_DISCOUNT;
-        } else {
-            return false;
-        }
-
-        foreach ($this->getItems($itemType) as $product) {
-            if ($product->getPk() === $item->getPk()) {
-                return true;
-            }
-        }
-        return false;
     }
 }
