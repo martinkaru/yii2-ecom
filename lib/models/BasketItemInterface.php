@@ -50,4 +50,11 @@ interface BasketItemInterface extends \Serializable
      * @return boolean whether the record has an attribute with the specified name.
      */
     public function hasAttribute($name);
+
+    /**
+     * Returns the primary key for the ActiveRecord item
+     *
+     * @return string
+     */
+    public function getPKValue();
 }
