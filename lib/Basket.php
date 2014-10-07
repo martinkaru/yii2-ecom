@@ -266,24 +266,4 @@ class Basket extends Component
 
         $this->items[$uniqueId]->setAttribute($attribute, $value);
     }
-
-    /**
-     * @param string $itemType
-     * @param bool $removeOnError
-     * @return array
-     */
-    public function validate($itemType = null, $removeOnError = false)
-    {
-        $errors = [];
-        foreach ($this->getItems($itemType) as $uniqueId => $item) {
-            if (!$item->validateItem()) {
-                $errors[] = $item->getItemErrors();
-
-                if ($removeOnError) {
-                    $this->remove($uniqueId);
-                }
-            }
-        }
-        return count($errors) === 0;
-    }
 }
