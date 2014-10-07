@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "af86b4a6cf8852a125d31ab84867d4b9",
+    "hash": "2cdb9edcd0aebcc21d8732e40c948e2e",
     "packages": [
         {
             "name": "bower-asset/jquery",
@@ -261,7 +261,7 @@
         },
         {
             "name": "opus-online/yii2-payment",
-            "version": "dev-master",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opus-online/yii2-payment.git",
