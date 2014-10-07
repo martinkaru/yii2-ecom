@@ -36,6 +36,10 @@ class Basket extends Component
     protected $items;
 
     /**
+     * @var Session
+     */
+    private $session;
+    /**
      * Override this to provide custom (e.g. database) storage for basket data
      *
      * @var string|\opus\ecom\basket\StorageInterface
@@ -63,6 +67,18 @@ class Basket extends Component
         $this->items = [];
 
         $save && $this->storage->save($this);
+        return $this;
+    }
+
+    /**
+     * Setter for the storage component
+     *
+     * @param \opus\ecom\basket\StorageInterface|string $storage
+     * @return Basket
+     */
+    public function setStorage($storage)
+    {
+        $this->storage = $storage;
         return $this;
     }
 
@@ -211,15 +227,21 @@ class Basket extends Component
     }
 
     /**
-     * Setter for the storage component
-     *
-     * @param \opus\ecom\basket\StorageInterface|string $storage
+     * @param \yii\web\Session $session
      * @return Basket
      */
-    public function setStorage($storage)
+    public function setSession(Session $session)
     {
-        $this->storage = $storage;
+        $this->session = $session;
         return $this;
+    }
+
+    /**
+     * @return \yii\web\Session
+     */
+    public function getSession()
+    {
+        return $this->session;
     }
 
     /**
@@ -231,12 +253,16 @@ class Basket extends Component
     }
 
     /**
-     * @param string $uniqueId Unique hash
+     * @param param BasketItemInterface|string $item
      * @return bool
      */
-    public function has($uniqueId)
+    public function has($item)
     {
-        return isset($this->items[$uniqueId]);
+        if ($item instanceof BasketItemInterface) {
+            return in_array($item, $this->getItems(), true);
+        } else {
+            return isset($this->items[$item]);
+        }
     }
 
     /**
@@ -251,5 +277,25 @@ class Basket extends Component
         }
 
         $this->items[$uniqueId]->setAttribute($attribute, $value);
+    }
+
+    /**
+     * @param string $itemType
+     * @param bool $removeOnError
+     * @return array
+     */
+    public function validate($itemType = null, $removeOnError = false)
+    {
+        $errors = [];
+        foreach ($this->getItems($itemType) as $uniqueId => $item) {
+            if (!$item->validateItem()) {
+                $errors[] = $item->getItemErrors();
+
+                if ($removeOnError) {
+                    $this->remove($uniqueId);
+                }
+            }
+        }
+        return count($errors) === 0;
     }
 }
