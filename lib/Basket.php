@@ -253,22 +253,14 @@ class Basket extends Component
     }
 
     /**
-     * @param string $uniqueId Unique hash
-     * @return bool
-     */
-    public function has($uniqueId)
-    {
-        return isset($this->items[$uniqueId]);
-    }
-
-    /**
      * @param string $uniqueId
      * @param string $attribute
      * @param string $value
+     * @return bool
      */
     public function update($uniqueId, $attribute, $value)
     {
-        if (!$this->has($uniqueId) || !$this->items[$uniqueId]->hasAttribute($attribute)) {
+        if (!isset($this->items[$uniqueId]) || !$this->items[$uniqueId]->hasAttribute($attribute)) {
             return false;
         }
 
